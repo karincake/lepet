@@ -39,8 +39,12 @@ func New() LangData {
 // Initilize built-in instance based on the given LangCfg value as configuration.
 func Init(conf *LangCfg) error {
 	I = &LangData{}
-	I.Active = conf.Active
-	I.List = map[string]LangItem{"en": defaultList}
+	if conf.Active != "" {
+		I.Active = conf.Active
+	} else {
+		I.Active = "en"
+	}
+	I.List = map[string]LangItem{I.Active: defaultList}
 
 	jsonFile, err := os.Open(fmt.Sprintf("%v/%v", conf.Path, conf.FileName))
 	if err != nil {
@@ -51,7 +55,7 @@ func Init(conf *LangCfg) error {
 	var myLI LangItem = LangItem{}
 	byteValue, _ := io.ReadAll(jsonFile)
 	json.Unmarshal(byteValue, &myLI)
-	maps.Copy(I.List["en"], myLI)
+	maps.Copy(I.List[I.Active], myLI)
 	return nil
 }
 
