@@ -89,16 +89,27 @@ func (a *LangData) AddMsgList(list LangItem, opt ...string) {
 }
 
 // Get message from the active language
+// opt[0] as selected lang
+// opt[1] and forwards are for value that will be used returned string
 func (a *LangData) Msg(k string, opt ...string) string {
 	lang := a.Active
 	if len(opt) > 0 {
-		a.Add(opt[1])
-		lang = opt[1]
+		a.Add(opt[0])
+		lang = opt[0]
 	}
 
 	if msg, ok := a.List[lang][k]; !ok {
-		return "** warning: usage of unlisted code **"
+		return "** warning: usage of unlisted code: " + k + ", in map:  " + lang + " **"
 	} else {
-		return msg
+		if len(opt) > 1 {
+			var optOne = opt[1:]
+			var optX []any = []any{}
+			for key := range optOne {
+				optX = append(optX, optOne[key])
+			}
+			return fmt.Sprintf(msg, optX...)
+		} else {
+			return msg
+		}
 	}
 }
