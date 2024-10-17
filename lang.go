@@ -89,16 +89,25 @@ func (a *LangData) AddMsgList(list LangItem, opt ...string) {
 }
 
 // Get message from the active language
+// opt will be used in the formatted string that is returned
 func (a *LangData) Msg(k string, opt ...string) string {
-	lang := a.Active
-	if len(opt) > 0 {
-		a.Add(opt[1])
-		lang = opt[1]
+	if msg, ok := a.List[a.Active][k]; !ok {
+		return "** warning: usage of unlisted code: " + k + ", in map:  " + a.Active + " **"
+	} else {
+		return processMsg(msg, opt...)
+	}
+}
+
+// Get message from the active language
+// opt will be used in the formatted string that is returned
+func (a *LangData) MsgWithLang(k string, lang string, opt ...string) string {
+	if _, ok := a.List[lang]; !ok {
+		return "** warning: usage of unlisted language:  " + lang + " **"
 	}
 
 	if msg, ok := a.List[lang][k]; !ok {
-		return "** warning: usage of unlisted code **"
+		return "** warning: usage of unlisted code: " + k + ", in language:  " + lang + " **"
 	} else {
-		return msg
+		return processMsg(msg, opt...)
 	}
 }
